@@ -57,7 +57,15 @@
 
 # TODO
 # 1. detach sbsms
-
+let
+  vst3sdk_src = fetchFromGitHub {
+    owner = "steinbergmedia";
+    repo = "vst3sdk";
+    tag = "v3.8.0_build_66";
+    hash = "sha256-ZGhhFic8l8xDwajTJgZPXl6M+S3QhrDX5zrCSu/Vfvg=";
+    fetchSubmodules = true;
+  };
+in
 stdenv.mkDerivation (finalAttrs: {
   pname = "audacity";
   version = "3.7.7";
@@ -154,8 +162,8 @@ stdenv.mkDerivation (finalAttrs: {
     "-DDISABLE_DYNAMIC_LOADING_FFMPEG=ON"
     "-Daudacity_conan_enabled=Off"
     "-Daudacity_use_ffmpeg=loaded"
-    "-Daudacity_has_vst3=Off"
     "-Daudacity_has_crashreports=Off"
+    "-Daudacity_use_vst3sdk=system"
 
     # RPATH of binary /nix/store/.../bin/... contains a forbidden reference to /build/
     "-DCMAKE_SKIP_BUILD_RPATH=ON"
@@ -169,6 +177,7 @@ stdenv.mkDerivation (finalAttrs: {
   # lib-theme.so: cannot open shared object file: No such file or directory
   preBuild = ''
     export LD_LIBRARY_PATH=$PWD/Release/lib/audacity
+    export VST3SDK='${vst3sdk_src}'
   '';
 
   doCheck = false; # Test fails
